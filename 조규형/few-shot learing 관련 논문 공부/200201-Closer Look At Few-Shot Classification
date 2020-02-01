@@ -15,3 +15,26 @@ Few shot learning 의 방법론 종류
    transfer learning과 비슷하게 데이터가 풍부한 다른 도메인의 모델을 데이터가 부족한 도메인의 모델로 변환시키는 방법
    
    
+이 논문인 제시한 baseline 모델과 baseline++ 모델
+
+baseline 모델: 데이터가 풍부한 클래스들로 학습을 시킨후 Feature extractor 파트의 웨이트들을 고정시킨후 classifier 웨이트만 파인튜닝하여 적은 데이터의 새로운 클래스를 학습
+baseline++ 모델: classifier를 linear layer가 아니라 cosine distance로 계산하는 방법 (intra-class variation을 낮춰 굉장히 효과가 좋았다고 한다)
+
+
+meta-learning 관련 모델 (이때부터 이해가 잘 안돼 머리가 아파왔다. 편의점에 가서 환타 오렌지맛을 사와서 마셨다. 너무 빨리 마셨더니 배가좀 아프다)
+
+1. MathcingNet: Baseline++과 굉장히비슷
+2. ProtoNet: 각 클래스 데이터들의 평균값(prototype)을 이용해 분류 
+3. RelationNet: Protonet 과 비슷하지만 단순히 유클리드 거리가 아니라 relation module을 통해 분류
+4. MAML: adaptation 을 잘하는 방향으로 모델을 학습
+
+Baseline++가 굉장히 좋은 성능을 보여젔고 Backbone 네트워크가 깊어질수록 각 네트워크들의 성능이 비슷해졌지만 mini-imagenet 같은 클래스간의 차이점이 큰 데이터 세트의 경우
+어떤 backbone 네트워크를 사용하느냐에 따라 성능이 차이가 났다.
+
+domain shift few shot learning 의 경우 ( CUB -> mini-imagenet으로 진행)
+하지만 간단한 Adapation을 해줘도 모델들의 성능이 좋아졌다.
+
+궁금점:
+1. Mathcingnet과 Baseline++의 차이가 현저한 이유가 도대체 뭘까?
+2. Adaptation이 단순히 레이어 하나를 추가하고 재학습하는것인가? 왜 성능이 향상될까?
+3. 논문에서 소개된 네트워크를 구현해보고 학습해보고 싶다.. 그래야 정확히 느낌을 알 수 있을 것 같다.
