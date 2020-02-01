@@ -1,0 +1,17 @@
+Closer Look At Few-Shot Classification - Wei-Yu Chen et al 논문 요약
+
+Few shot learning 의 방법론 종류
+
+1) Initialization based methods:
+  "learning to find-tune" 각 뉴런 웨이트들의 초기값 설정을 올바르게하여 새로운 클래스를 학습할때도 적은 데이터로도 학습이 가능케 만드는 방법
+  
+2) Distance metric learning based methods:
+  "learning to compare" 이미지간의 유사도 (거리계산) 을 통해 분류하는 방법
+  
+3) Hallucination based methods:
+  "learning to augment" 데이터 오그멘테이션을 이용한 방법
+  
+4) Domain adaptation :
+   transfer learning과 비슷하게 데이터가 풍부한 다른 도메인의 모델을 데이터가 부족한 도메인의 모델로 변환시키는 방법
+   
+   
