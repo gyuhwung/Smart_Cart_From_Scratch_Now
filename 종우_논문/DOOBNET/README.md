@@ -13,6 +13,7 @@ leaving a large room for improvement
 
 f-score 에 대한 설명
 https://bcho.tistory.com/tag/F1%20score
+
 https://www.quora.com/What-is-an-intuitive-explanation-of-F-score
 
 segmentation : FCN [19], SegNet [20], U-Net [21]
