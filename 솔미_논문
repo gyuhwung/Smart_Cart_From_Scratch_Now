@@ -1,1 +1,49 @@
+A Multi-camera HD Dataset for Dense Unscripted Pedestrian Detection
+
+
+École Polytechnique 과 ETH Zurich 소속 Computer Vision 연구원들이 만든 multi-camera 데이터셋입니다. 
+기존 데이터셋들은 monocular camera 혹은 multi-camera 라도 non-overlapped 되어 있거나, 사람이 적거나, calibration 이 부정확한 데이터셋이 대부분인데,
+WILDTRACK 데이터셋은 multi-camera 이면서 overlapped 된 비디오 데이터이면서 각 카메라간 calibration 이 잘 되어있고,
+3D-location 에 대해 각 카메라의 2D-bounding box 가 함께 annotation 이 되어 있습니다.
+
+# Resolution: HD(1920 x 1080)
+# Cameras: 7
+# FPS: 60
+# Mobile/Static: Static
+# Overlapping: Yes
+# Video: Yes
+# Persons: 313
+# Annotations: ~7 x 9518 (2fps)
+# Size: ~60 mins
+
+등장하는 사람수는 대략 300명 정도로 각 카메라마다 occlusion 이 발생하는 확률이 매우 높습니다. Figure 3 은 각 카메라에서 전체 픽셀수 대비 발생하는 occluded pixel 의 비율을 나타내는 히스토그램인데요, 
+figure 3 하단 맨우측 All views 를 보시면 한 사람이 모든 카메라에서 occlusion 이 발생할 확률은 매우 낮다는 걸 볼 수 있습니다.
+
+
+다른 멀티카메라 데이터셋 간의 비교는 Table 1 을 참조하시면 됩니다.
+
+
+
+저자들은 또한 WILDTRACK 데이터셋에서 detection 과 tracking 의 벤치마크 기법들 간 성능도 함께 비교해서 보여줍니다. 
+논문에서 사용한 기법들은 아래와 같습니다. (MOTA, MOTP 등 tracking metric 은 이 논문 5 이나 링크 6 참조)
+
+Detection
+
+POM-CNN: Probabilistic Occupancy Map (2008) + Fully Convolutional Network (CVPR 2015)
+POM 은 Bayesian generative model 기반으로 하는 tracking 알고리듬
+POM 에서 background subtraction 용으로 기존 알고리즘 대신 CNN(semantic segmentation) 사용
+DeepMCD: Deep Multi-camera Detection (CVPR 2015) 2
+End-to-End 기법. GoogLeNet / ResNet / DenseNet 으로 구현해서 비교 실험
+Deep-Occlusion: Deep Occlusion Reasoning for Multi-Camera Multi-Target Detection (ICCV 2017) 
+Discriminative model 로서 CNN 과 Generative model 로서 CRF 를 결합한 모형.
+RCNN: Multi-view People Tracking via Hierarchical Trajectory Composition (CVPR 2016) 
+
+Multiple Object Tracking
+
+KSP: Multiple object tracking using K-shortest paths optimization (2011)
+주어진 sequence of occupancy map 에서 가장 가능성이 높은 trajectory 를 찾기 위해 multi-target tracking 을 IP(integer programming) 문제로 치환. 이 문제를 다시 DAG(directed acyclic graph)로 전환해 K-shortest paths 3 을 적용해서 푼다.
+여기서 occupancy map 은 POM 을 써도 되고 Deep-Occlusion 을 적용해도 된다.
+
+ptrack: Non-Markovian Globally Consistent Multi-Object Tracking 3
+기존 tracking 알고리듬 성능을 향상시키는 방법. 참고로 unsupervised scheme
 
