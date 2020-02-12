@@ -24,3 +24,11 @@ SSD 나 Yolo보다 더 간단한 네트워크 구조로 이 문제에 대한 해
 
 궁금점: 랜드마크 디텍션을 SSD 나 YOLO아닌 VGG-16네트워크로 해결했다. 물론 SSD 나 YOLO도 모두 backbone 네트워크를 VGG-16사용할수 있지만
 Deepfashion의 네트워크는 좀더 단순한 것 같다. 이게 어떻게 가능한지 모르겠다.. 실제 네트워크 구조가 어떠한지 봐야겠다.
+
+-- 종우 추가
+관련해서 작년 iccv 에 나왔던 논문입니다.
+모바일에서 랜드마크 추출이 가능 합니다.
+* HUAWEI-Lobachevsky university
+- deepfashion2 challenge에 나갔던 논문으로 모바일에서 13FPS의 빠르기로 입고있는 옷의 keypoint를 찾고 reconotion 까지 할수 있습니다. 
+- paper : http://openaccess.thecvf.com/content_ICCVW_2019/papers/CVFAD/Sidnev_DeepMark_One-Shot_Clothing_Detection_ICCVW_2019_paper.pdf
+- deepfashion2 challenge : https://sites.google.com/view/cvcreative/deepfashion2
