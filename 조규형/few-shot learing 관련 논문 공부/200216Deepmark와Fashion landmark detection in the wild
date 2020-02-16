@@ -1,0 +1,37 @@
+Deepmark
+https://arxiv.org/abs/1910.01225
+
+Fashion Landmark Detection in the Wild
+https://arxiv.org/abs/1608.03049
+
+딥마크의 경우 Centernet를 패션 랜드마크 및 BBox 디텍션에 사용한 경우이다.
+
+SSD나 YOLO 말고도 Cascade CNN같이 object detection에 특화된 네트워크가 있었다.
+
+Centernet의 경우 특정 오브젝트의 정중앙점을 찾는 네트워크이다.
+
+기존 BBox 의 X,Y 좌표를 찾는 모델과는 약간 차이가 있었다.
+
+하지만 마찬가지로 특정 오브젝트의 정중앙점을 Output중 하나로 설정하여 학습한다.
+
+자세한 네트워크의 구조는 다음주에 탐구하려고 한다.
+
+Fashion Landmark Detection in the wild 의 경우 오브젝트를 디텍션할때 보통 사각형의 BBOX으로 표현하지만
+
+옷같은경우 소매끝, 목주변 등등 오브젝트중에서 중요한 부위들을 X,Y좌표로 표현하기도 한다.
+
+이러한 것들을 Landmark Detection이라고 부르는데 이 논문에서 흥미로운 점은 단순히 BBOX 좌표 보다 랜드마크들의 좌표들이 더 강력한
+
+Discriminative representation 역할을 한다고 한다. 예를들어 단순 분류 CNN에 패션이미지를 넣고 결과값으로 나온 텐서값으로 클러스터링을
+
+하게되면 비슷한 카테고리별로 옷들이 안뭉친다고 한다.. 그런데 단순히 이 랜드마크 좌표들을 CNN 결과값에 붙여 클러스터링하는 것만으로
+
+클러스터링의 효과가 매우 증대됬다고 한다.
+
+AI 스캐너의 상품들도 과자박스, 병음료등 그 종류에 따라 분명 특수한 랜드마크들이 있다. 이런 랜드마크를 인식하는 모델을 만든다면
+
+추후 샴네트워크등으로 유사도 기산 image retrival를 할때 정확도가 올라갈 가능성이 높다.
+
+대부분의 얼굴인식 모델들도 이런 랜드마크 디텍션 결과를 이용해 image retrieval을 한다.
+
+차주엔 랜드마크 디텍션에 이용되는 모델들을 공부하려고 한다.
