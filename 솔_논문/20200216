@@ -1,0 +1,72 @@
+https://arxiv.org/abs/1708.00153
+
+정리되어있는 내용을 참조하여 공부하였습니다.
+
+요약:
+
+
+
+.
+PTAV (Parallel Tracking and Verifying)은 2017년 ICCV에서 발표된 tracker로,
+당시 기준 real time tracker (25 fps 내외) 중에서는 가장 좋은 성능을 보여줬던 알고리즘입니다.
+
+물론 지금은 더 높은 성능을 보여주는 트래커들이 있지만, 아직까지 준수한 성능을 보여주고 있습니다.
+PTAV는 빠른 속도를 가진 기본 "Tracker, T"와 이것의 성능을 보정해주는 "Verifier, V"로 구성됩니다.
+즉 모델의 이름그대로, T는 트래킹을 계속하고 있으며 병렬적으로 이 결과를 검증하는 모델입니다.
+결과를 검증했더니, 그 결과가 좋지 않은 것이라고 판단되면 더 복잡한 연산을 포함하는 V를 통해 결과를 수정합니다.
+
+전반적인 알고리즘의 흐름은 figure2에서 볼수 있습니다.
+우선 빠른 속도의 가벼운 Tracker, T가 타겟을 잘 쫒아가고 있습니다. (blue box)
+Verifier, V는 주기적으로 결과를 전달받아 (10 프레임), 결과의 verification score를 계산합니다.
+80 번째 프레임과 같이 그 verification score가 일정 역치보다 낮게되면, 결과에 문제가 있다고 판단합니다.
+이 후, 기존 모델보다 좀 더 복잡한 모델을 가지고 target의 위치를 찾습니다. (red box)
+위의 과정을 비디오가 끝날 때까지 반복합니다.
+
+PTAV 모델의 동기(motivation)은 간단합니다.
+
+기존 correlation filter 기반의 트래커는 빠르지만 성능이 만족스럽지 않고, 딥러닝 기반의 모델들은 배경과 타겟의 분별적인 표현 (discriminative representation)을 잘 학습하지만 속도가 느리다
+Tracking video의 대부분은 변화가 많이 일어나지 않고, 변화가 많이 일어나 난이도가 높은 부분은 일부에 불과하다.
+여러 작업을 하나의 thread가 아닌, 여러 개의 threads에서 병렬적으로 작업하면 훨씬 효율적이다. (visual SLAM 등에 동기를 얻음)
+이 세 가지 동기를 바탕으로, PTAV의 메인 아이디어는 변화가 많아 난이도가 높은 부분에서만 복잡한 모델을 사용하고 그렇지 않은 부분은 CF 기반의 가벼운 모델로 빠르게 처리하자는 것입니다.
+특히, CF 기반의 tracker, T와 이 결과를 검증하는 verifier, V를 같은 threads에서 실행하지 않고 병렬적으로 배치하면 효율적으로 이 작업들을 수행할 수 있습니다.
+
+
+
+서로 다른 thread에서 각각 실행할 경우, frame의 싱크가 어느 정도 맞지 않기 때문에 일정 주기를 간격으로 T의 결과를 V가 전달받습니다. 그리고 전달받은 결과에 이상이 있으면, 이상이 있는 부분의 결과는 다시 계산하게 됩니다.
+언뜻보면 계산한 결과를 다시 계산해야하는 것이 비효율적인 것처럼 보일 수 있지만, 결과에 이상이 없을 때까지는 계속 tracking을 진행해나가면 되기 때문에 빠른 속도를 유지할 수 있습니다.
+
+알고리즘의 큰 구조는 두 부분으로 구성되어 있으며, 각각 다른 threads에서 병렬적으로 작업합니다.
+
+1. Tracker, T
+
+Tracker는 기본적으로 빠른 속도로 트래킹하는 것을 목적으로 하기 때문에, CF (Correlation Filter) 기반의 모델로 구성됩니다.
+논문에서는 fDSST (Discriminative Scale Space Tracker)를 사용했습니다.
+fDSST는 CF기반 트래커로, ridge regression 문제를 풀며 correlation filter를 학습합니다.
+
+자세한 수식은 논문을 참조하세요. Tracker, T의 알고리즘은 아래와 같이 표현됩니다.
+Verifier, V에서 검증한 결과에 문제가 없으면, 계속 tracking을 해나가며 모델을 업데이트합니다.
+만약 문제가 있을 경우, 해당 검증을 통과하지못한 프레임의 결과를 수정하고, 해당 프레임부터 다시 트래킹을 진행합니다.
+
+그리고 미리 정해진 주기마다, verifier에 tracking 결과를 전달하는 것을 반복합니다.
+
+
+
+Tracker, T는 verifier의 판단 결과에 따라 모델을 되돌려야하는 경우가 발생합니다.
+빠르게 되돌리기 위해 filter의 값을 그 때 그 때 저장해놓았다가 되돌려야될 때 바로 사용한다고 합니다.
+
+2. Verifier, V
+
+Verifier, V로는 Siamese network가 사용됩니다. Siamese network는 2개의 입력을 받아, 유사도를 계산하는 구조의 딥러닝 모델입니다. 기존 SiamFC와 다르게 PTAV에서는 'region pooling layer’를 추가하였습니다. 그 이유는 T의 결과에 문제가 있어, 직접 타겟을 찾아야할 때 동시에 여러 regions을 처리해야하기 때문입니다. 동시에 여러 부분을 처리하면서 target과 가장 유사한 candidate을 결정하게 됩니다. sliding window를 통해 추출된 candidate ci 중 가장 verification score가 높은 것이 tracking target이 되고, 이 정보가 tracker에게 전달됩니다.
+
+
+
+하지만 Verifier, V에서 찾은 위치라고 하더라도 잘못될 수 있기에 항상 믿을 수는 없습니다. 다시 찾은 타겟의 verification score가 또 일정 역치보다 낮으면, 검증하는 주기인 verifying interval을 줄이고 local region의 크기를 키워 이 다음 프레임부터는 더 자주 검증을 진행하고, 문제가 생겼을 경우 더 넓은 지역에서 타겟을 찾습니다.
+
+
+정리
+
+병렬적으로 threads를 사용하여 tracking과 verification의 기능을 구분한 모델입니다.
+단순히, 서로 다른 기능을 빠르게 하려고 분리했네? 정도로 생각할 수도 있지만 tracking과 verification 기능의 구분에 기존 tracking 모델들이 포함하는 문제들을 잘 정리한 통찰을 가지고 있습니다.
+논문에서는 다양한 벤치마크에 대해 real-time tracker 중 가장 우수한 수준의 성능을 주장하며 실험 결과를 제시합니다. 또한 verifying interval, 다른 CF 기반 트래커 사용, verification 사용 전 후 성능 비교 등 다양한 분석도 함께 포함합니다.
+
+본 연구에서는 단순히 제안하는 모델 설정보다는 병렬적으로 처리되는 tracking & verification 컨셉이 의미있다고 말하며, 현재 논문에서 사용하는 모델이 최적화되어있지는 않았기 때문에 각각의 구조에 다양한 알고리즘을 사용할 수 있는 flexible한 구조이며, 성능 향상과 일반화에 가능성이 높다고 주장합니다.
