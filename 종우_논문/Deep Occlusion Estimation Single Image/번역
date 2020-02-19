@@ -1,1 +1,41 @@
-ㅁㅁㅁ
+Deep OCclusion Estimation From a Single
+
+사람은 직관적으로 어떤 물체가 앞에 있는지 뒤에 있는지 알수 있음
+fully convolutional deep convolutional neural networks (FCN)
+> 다음 논문 주제
+> 엣지 디텍션에 성공적인 논문
+
+occlusions은 각 픽셀마다 두가지 특징이 있음을밝힘 
+1. 경계에서의 픽셀은 이진 엣지를 나타내고
+2. 경계가 아닌 부분에서는 연속적인 값을 가짐?
+
+* left rule : 왼쪽에 있는 픽셀이 오른쪽의 픽셀보다 앞에 있음
+              경계의 왼쪽이 위에 있는 이미지 임
+
+pascal voc 이미지 데이터 셋을 사용함
+
+* DOC deep network
+
+
+* Loss functions for occlusion relations
+픽셀이 e, 각도 값을 준다.
+e 는 1,0 값인데 1은 경계에 해당 한다.
+각도는 -360, 360 도를 가진다.
+레프트 룰 하의 탄젠트 값은 fig3의 그래프를 가진다.
+e가 0이면 경계가 아니므로 각도는 nan 이고 loss 계산시 사용안함
+
+occlusion recovery 를 위해 사용된 아키텍쳐 > 정확히 뭔지는 담에 또 찾아보자..
+- HED
+- DMLFOV
+
+BSDS border ownership dataset : 200개 이미지
+
+PASCAL VOC dataset 
+- 이미지가 잘 선택 되어 있고
+- 이미 20개의 오브젝트에 대해 경계를 표기해놨다.
+
+Stage 1: Annotate with directed line segments
+Stage 2: Matching directed line segments to object boundaries.
+
+
+parsenet을 베이스로 모델을 만듬 
