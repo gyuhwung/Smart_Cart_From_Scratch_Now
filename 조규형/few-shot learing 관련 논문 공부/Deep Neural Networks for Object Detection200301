@@ -1,0 +1,26 @@
+https://papers.nips.cc/paper/5207-deep-neural-networks-for-object-detection.pdf
+
+object detection에 성공적으로 DNN을 적용한 논문.
+
+DNN 이전에는 deformable part-based model이라고하여 hand-crafted된 image primitives을 뽑아내는 필터 (HOG)위에 shallow한 레이어를 첨가해 Object Detection
+을 수행하는 모델이 최고의 성능을 냈다.
+
+그러나 이 논문에서 소개된 DNN은 이런 Hand-crafted 된 필터를 네트워크로 대체했다고 할 수 있다.
+
+최종 레이어를 소프트맥스가 아닌 리그레션 레이어를 사용하여 오브젝트의 위치를 파악했다.
+(솔직히 리그레션 레이어가 정확히 어떻게 구현되는지 몰랐다.. 다음주에 직접 구현해보는게 좋을 것 같다)
+
+로스펑션의 경우 디텍팅된 박스가 실제 ground truth와 얼만큼 (픽셀단위 IOU 인듯하다) 겹치는 지로 결정되었다.
+
+겹쳐있거나 작은 물체들을 성공적으로 디텍팅 하기위해 물체의 일부분을 인지하는 네트워크를 추가했다고 한다.
+
+DNN을 통한 Regression 뿐 아니라 multi-scale course-to-fine procedure도 포함시켰다.
+
+물론 classifier를 학습시킬때보다 훨씬 더 많은양의 데이터가 필요했다.
+(사실 이 부분은 잘이해가 되지 않았다...)
+
+object detecion을 수행하는데 여러개의 네트워크가 사용되었다.
+
+후에 SSD 나 YOLO 같이 하나의 네트워크로 이를 모두 처리하는 기술이 개발되었지만..
+
+충분히 이 논문에서 소개된 방법도 복잡하다...
