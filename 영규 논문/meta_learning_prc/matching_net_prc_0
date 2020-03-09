@@ -1,0 +1,117 @@
+import tensorflow as tf
+slim = tf.contrib.slim
+rnn = tf.contrib.rnn
+
+class Matching_network():
+    
+    
+    #변수 초기화
+    def __init__(self, lr, n_way, k_shot, batch_size=32):
+        
+        #서포트셋 플레이스홀더
+        self.support_set_image = tf.placeholder(tf.float32, [None, n_way * k_shot, 28, 28, 1])
+        self.support_set_label = tf.placeholder(tf.int32, [None, n_way * k_shot, ])
+        
+        #쿼리셋 플레이스홀더
+        self.query_image = tf.placeholder(tf.float32, [None, 28, 28, 1])
+        self.query_label = tf.placeholder(tf.int32, [None, ])
+
+
+    #이미지를 받고 해당 이미지를 인코딩
+    def image_encoder(self, image):
+     
+    
+        with slim.arg_scope([slim.conv2d], num_outputs=64, kernel_size=3, normalizer_fn=slim.batch_norm):
+            #conv1
+            net = slim.conv2d(image)
+            net = slim.max_pool2d(net, [2, 2])
+            
+            #conv2
+            net = slim.conv2d(net)
+            net = slim.max_pool2d(net, [2, 2])
+            
+            #conv3
+            net = slim.conv2d(net)
+            net = slim.max_pool2d(net, [2, 2])
+            
+            #conv4
+            net = slim.conv2d(net)
+            net = slim.max_pool2d(net, [2, 2])
+            
+        return tf.reshape(net, [-1, 1 * 1 * 64])
+    
+       
+    #인코딩된 서포트셋 데이터로부터 임베딩 함수 정의
+    def g(self, x_i):
+
+        forward_cell = rnn.BasicLSTMCell(32)
+        backward_cell  = rnn.BasicLSTMCell(32)
+        outputs, state_forward, state_backward = rnn.static_bidirectional_rnn(forward_cell, backward_cell, x_i, dtype=tf.float32)
+
+        return tf.add(tf.stack(x_i), tf.stack(outputs))
+
+    
+    #인코딩된 쿼리셋 데이터로부터 임베딩 함수 정의
+    def f(self, XHat, g_embedding):
+        cell = rnn.BasicLSTMCell(64)
+        prev_state = cell.zero_state(self.batch_size, tf.float32) 
+
+        for step in xrange(self.processing_steps):
+            output, state = cell(XHat, prev_state)
+            
+            h_k = tf.add(output, XHat) 
+
+            content_based_attention = tf.nn.softmax(tf.multiply(prev_state[1], g_embedding))  
+            
+            r_k = tf.reduce_sum(tf.multiply(content_based_attention, g_embedding), axis=0)      
+
+            prev_state = rnn.LSTMStateTuple(state[0], tf.add(h_k, r_k))
+
+        return output
+
+    #서포트셋 쿼리셋 코사인 거리 
+    def cosine_similarity(self, target, support_set):
+        target_normed = target
+        sup_similarity = []
+        for i in tf.unstack(support_set):
+            i_normed = tf.nn.l2_normalize(i, 1) 
+            similarity = tf.matmul(tf.expand_dims(target_normed, 1), tf.expand_dims(i_normed, 2)) 
+            sup_similarity.append(similarity)
+
+        return tf.squeeze(tf.stack(sup_similarity, axis=1)) 
+    
+
+    def train(self, support_set_image, support_set_label, query_image):    
+        
+        #encode the features of query set images using our image encoder
+        query_image_encoded = self.image_encoder(query_image)  
+        
+        #encode the features of support set images using our image encoder
+        support_set_image_encoded = [self.image_encoder(i) for i in tf.unstack(support_set_image, axis=1)]
+        
+        #generate support set embeddings using our embedding function g
+        g_embedding = self.g(support_set_image_encoded)    
+        
+        #generate query set embeddings using our embedding function f
+        f_embedding = self.f(query_image_encoded, g_embedding)    
+
+        #calculate the cosine similarity between both of these embeddings
+        embeddings_similarity = self.cosine_similarity(f_embedding, g_embedding) 
+        
+        #perform attention over the embedding similarity => 소프트맥스함수
+        attention = tf.nn.softmax(embeddings_similarity)
+        
+        #now predict query set label by multiplying attention matrix with one hot encoded support set labels
+        y_hat = tf.matmul(tf.expand_dims(attention, 1), tf.one_hot(support_set_label, self.n_way))
+        
+        #get the probabilities 
+        probabilities = tf.squeeze(y_hat)   
+        
+        #select the index which has the highest probability as a class of query image
+        predictions = tf.argmax(self.probabilities, 1)
+        
+        #we use softmax cross entropy loss as our loss function
+        loss_function = tf.losses.sparse_softmax_cross_entropy(label, self.probabilities)
+        
+        #we minimize the loss using adam optimizer
+        tf.train.AdamOptimizer(self.lr).minimize(self.loss_op)v
