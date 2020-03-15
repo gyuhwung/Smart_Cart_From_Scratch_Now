@@ -1,0 +1,13 @@
+Rich feature hierarchies for accurate object detection and semantic segmentation
+
+R-CNN은 다음과 같은 구조로 작동한다.
+
+1.Seletive search
+
+2.CNN filter (Alexnet을 backbone network로 초기에 사용했다)
+
+3.Bbox regressor (각 클래스별로 SVM regressor를 만든듯 싶다)
+
+2번 부분은 이해가되지만 1번과 3번이 잘 이해가 되지 않는다.
+
+Selective search 란 무엇일까? 차주에 Seletive search에 관한 논문을 읽고자한다.
