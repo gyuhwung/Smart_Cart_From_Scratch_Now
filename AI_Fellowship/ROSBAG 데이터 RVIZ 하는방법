@@ -1,0 +1,9 @@
+https://cloud.google.com/solutions/chrome-desktop-remote-on-compute-engine?hl=ko
+이걸 참고해서 리눅스 데스크탑 만듭니다 (linux debian 9 stretch로 하셔야합니다 dafault는 debian 10 buster 이기에 수정해줘야합니다)
+
+
+http://wiki.ros.org/melodic/Installation/Debian
+이걸 참고하여 설치합니다
+
+https://www.youtube.com/watch?v=e0r4uKK1zkk
+이 동영상을 보고 따라하시면 rosbag pointcloud 데이터 시각화하실수 있습니다.
